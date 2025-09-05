@@ -3,6 +3,8 @@ package top.yogiczy.mytv.tv.ui.screensold.channel.components
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,15 +22,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.Card
-import androidx.tv.material3.CardDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import top.yogiczy.mytv.core.data.entities.channel.Channel
@@ -57,6 +59,21 @@ fun ChannelItem(
     var isFocused by remember { mutableStateOf(false) }
     val focusRequester = remember { FocusRequester() }
 
+    val colorScheme = MaterialTheme.colorScheme
+    val localContentColor = LocalContentColor.current
+    val containerColor = remember(isFocused) {
+        if (isFocused) colorScheme.onSurface
+        else colorScheme.surface.copy(0.8f)
+    }
+    val contentColor = remember(isFocused) {
+        if (isFocused) colorScheme.surface
+        else localContentColor
+    }
+    val borderStroke = remember(isFocused) {
+        if (isFocused) BorderStroke(1.dp, colorScheme.onSurface)
+        else BorderStroke(0.dp, Color.Transparent)
+    }
+
     LaunchedEffect(Unit) {
         if (initialFocused) {
             onInitialFocused()
@@ -64,59 +81,61 @@ fun ChannelItem(
         }
     }
 
-    Card(
-        onClick = {},
+    Box(
         modifier = modifier
             .width(124.dp)
             .focusRequester(focusRequester)
             .onFocusChanged { isFocused = it.isFocused || it.hasFocus }
+            .focusable()
+            .fillMaxWidth()
+            .border(borderStroke, MaterialTheme.shapes.small)
+            .clip(MaterialTheme.shapes.small)
             .handleKeyEvents(onSelect = onChannelSelected, onLongSelect = onChannelFavoriteToggle),
-        colors = CardDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.surface.copy(0.8f),
-            focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-        ),
-        border = CardDefaults.border(
-            focusedBorder = Border(BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)),
-        ),
     ) {
-        Column {
-            if (showChannelLogoProvider()) {
-                Box(
-                    modifier = Modifier
-                        .background(
-                            if (isFocused) MaterialTheme.colorScheme.surface.copy(0.9f)
-                            else MaterialTheme.colorScheme.surface.copy(0.5f)
-                        )
-                        .height(50.dp)
-                        .fillMaxWidth()
-                        .padding(8.dp),
-                ) {
-                    ChannelsChannelItemLogo(
-                        modifier = Modifier.align(Alignment.Center),
-                        channelProvider = channelProvider,
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            Column {
+                if (showChannelLogoProvider()) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                if (isFocused) MaterialTheme.colorScheme.surface.copy(0.9f)
+                                else MaterialTheme.colorScheme.surface.copy(0.5f)
+                            )
+                            .height(50.dp)
+                            .fillMaxWidth()
+                            .padding(8.dp),
                     ) {
-                        Text(
-                            channelProvider().no,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
+                        ChannelsChannelItemLogo(
+                            modifier = Modifier.align(Alignment.Center),
+                            channelProvider = channelProvider,
+                        ) {
+                            Text(
+                                channelProvider().no,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                        }
                     }
                 }
-            }
 
-            Box(modifier = Modifier.height(53.dp)) {
-                ChannelItemContent(
-                    channelProvider = channelProvider,
-                    recentEpgProgrammeProvider = recentEpgProgrammeProvider,
-                    isFocusedProvider = { isFocused },
-                )
+                Box(
+                    modifier = Modifier
+                        .height(53.dp)
+                        .background(containerColor)
+                ) {
+                    ChannelItemContent(
+                        channelProvider = channelProvider,
+                        recentEpgProgrammeProvider = recentEpgProgrammeProvider,
+                        isFocusedProvider = { isFocused },
+                    )
 
-                ChannelItemProgress(
-                    recentEpgProgrammeProvider = recentEpgProgrammeProvider,
-                    showEpgProgrammeProgressProvider = showEpgProgrammeProgressProvider,
-                    isFocusedProvider = { isFocused },
-                    modifier = Modifier.align(Alignment.BottomStart),
-                )
+                    ChannelItemProgress(
+                        recentEpgProgrammeProvider = recentEpgProgrammeProvider,
+                        showEpgProgrammeProgressProvider = showEpgProgrammeProgressProvider,
+                        isFocusedProvider = { isFocused },
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    )
+                }
             }
         }
     }
@@ -147,10 +166,9 @@ private fun ChannelItemContent(
         )
         Text(
             recentEpgProgramme?.now?.title ?: "",
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(LocalContentColor.current.copy(0.8f)),
             maxLines = 1,
             modifier = Modifier
-                .alpha(0.8f)
                 .ifElse(isFocused, Modifier.basicMarquee()),
         )
     }

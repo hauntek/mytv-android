@@ -2,7 +2,10 @@ package top.yogiczy.mytv.tv.ui.screen.dashboard
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,9 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.Icon
-import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import kotlinx.coroutines.launch
 import top.yogiczy.mytv.core.data.entities.channel.Channel
@@ -137,21 +138,16 @@ fun DashboardScreeIptvSource(
         }
     }
 
-    Surface(
+    Box(
         modifier = modifier
             .onFocusChanged { isFocused = it.isFocused || it.hasFocus }
+            .focusable()
             .handleKeyEvents(
                 onSelect = toSettingsIptvSourceScreen,
                 onLongSelect = clearCurrentIptvSourceCache,
             )
-            .alpha(alpha.value),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = Color.Transparent,
-            focusedContainerColor = Color.Transparent,
-        ),
-        scale = ClickableSurfaceDefaults.scale(focusedScale = 1f),
-        shape = ClickableSurfaceDefaults.shape(RectangleShape),
-        onClick = {},
+            .alpha(alpha.value)
+            .background(Color.Transparent,RectangleShape),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

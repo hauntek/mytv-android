@@ -2,10 +2,13 @@ package top.yogiczy.mytv.tv.ui.screensold.classicchannel.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -23,11 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.DenseListItem
-import androidx.tv.material3.ListItemDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -80,6 +83,7 @@ fun ClassicChannelGroupItemList(
             firstFocusRequester.saveRequestFocus()
         }
     }
+
     fun scrollToLast() {
         coroutineScope.launch {
             listState.scrollToItem(channelGroupList.lastIndex)
@@ -140,40 +144,51 @@ private fun ClassicChannelGroupItem(
     onFocused: () -> Unit = {},
 ) {
     val channelGroup = channelGroupProvider()
+    val isSelected = isSelectedProvider()
 
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
 
-    DenseListItem(
+    val colorScheme = MaterialTheme.colorScheme
+    val localContentColor = LocalContentColor.current
+    val containerColor = remember(isFocused, isSelected) {
+        if (isFocused) colorScheme.onSurface
+        else if (isSelected) colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else Color.Transparent
+    }
+    val contentColor = remember(isFocused, isSelected) {
+        if (isFocused) colorScheme.surface
+        else if (isSelected) colorScheme.onSurface
+        else localContentColor
+    }
+
+    Box(
         modifier = modifier
             .focusRequester(focusRequester)
             .onFocusChanged {
                 isFocused = it.isFocused || it.hasFocus
                 if (isFocused) onFocused()
             }
+            .focusable()
+            .background(containerColor, MaterialTheme.shapes.small)
+            .padding(horizontal = 12.dp, vertical = 10.dp)
             .handleKeyEvents(
                 isFocused = { isFocused },
                 focusRequester = focusRequester,
                 onSelect = {},
             ),
-        colors = ListItemDefaults.colors(
-            focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-            selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            selectedContentColor = MaterialTheme.colorScheme.onSurface,
-        ),
-        selected = isSelectedProvider(),
-        onClick = {},
-        headlineContent = {
-            Text(
-                text = channelGroup.name,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .ifElse(isFocused, Modifier.basicMarquee()),
-            )
-        },
-    )
+    ) {
+        Text(
+            text = channelGroup.name,
+            textAlign = TextAlign.Center,
+            maxLines = 1,
+            modifier = Modifier
+                .fillMaxWidth()
+                .ifElse(isFocused, Modifier.basicMarquee()),
+            color = contentColor,
+            style = MaterialTheme.typography.titleSmall,
+        )
+    }
 }
 
 @Preview

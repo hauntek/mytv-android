@@ -9,7 +9,6 @@ import androidx.annotation.OptIn
 import androidx.media3.common.C
 import androidx.media3.common.Format
 import androidx.media3.common.MediaItem
-import androidx.media3.common.MimeTypes
 import androidx.media3.common.Player
 import androidx.media3.common.TrackGroup
 import androidx.media3.common.TrackSelectionOverride
@@ -35,7 +34,6 @@ import androidx.media3.exoplayer.source.MediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
 import androidx.media3.exoplayer.util.EventLogger
-import androidx.media3.exoplayer.video.MediaCodecVideoRenderer
 import com.google.common.collect.ImmutableList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -92,8 +90,8 @@ class Media3VideoPlayer(
                 .build()
         }
 
-        MediaCodecVideoRenderer.skipMultipleFramesOnSameVsync =
-            Configs.videoPlayerSkipMultipleFramesOnSameVSync
+        // MediaCodecVideoRenderer.skipMultipleFramesOnSameVsync =
+        //     Configs.videoPlayerSkipMultipleFramesOnSameVSync
         return ExoPlayer.Builder(context)
             .setRenderersFactory(renderersFactory)
             .setTrackSelector(trackSelector)
@@ -417,7 +415,7 @@ class Media3VideoPlayer(
     private fun Format.toAudioMetadata(audio: Metadata.Audio? = null): Metadata.Audio {
         return (audio ?: Metadata.Audio()).copy(
             channels = channelCount,
-            channelsLabel = if (sampleMimeType == MimeTypes.AUDIO_AV3A) "菁彩声" else null,
+            // channelsLabel = if (sampleMimeType == MimeTypes.AUDIO_AV3A) "菁彩声" else null,
             sampleRate = sampleRate,
             bitrate = bitrate,
             mimeType = sampleMimeType,

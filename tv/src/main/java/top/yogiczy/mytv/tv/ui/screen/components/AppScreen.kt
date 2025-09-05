@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Circle
@@ -32,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -170,33 +173,52 @@ fun AppScaffoldHeaderBtn(
     loading: Boolean = false,
     onSelect: () -> Unit = {},
 ) {
-    Button(
-        modifier = modifier.handleKeyEvents(onSelect = { if (!loading) onSelect() }),
-        colors = ButtonDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.1f),
-        ),
-        onClick = {},
+    var isFocused by remember { mutableStateOf(false) }
+
+    val colorScheme = MaterialTheme.colorScheme
+    val localContentColor = LocalContentColor.current
+    val containerColor = remember(isFocused) {
+        if (isFocused) colorScheme.onSurface
+        else colorScheme.onSurface.copy(alpha = 0.1f)
+    }
+    val contentColor = remember(isFocused) {
+        if (isFocused) colorScheme.surface
+        else localContentColor
+    }
+
+    Box(
+        modifier = modifier
+            .handleKeyEvents(onSelect = { if (!loading) onSelect() })
+            .onFocusChanged { isFocused = it.hasFocus || it.isFocused }
+            .focusable()
+            .background(containerColor, CircleShape)
+            .padding(horizontal = 16.dp, vertical = 10.dp),
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(20.dp),
-                    color = LocalContentColor.current,
-                    trackColor = MaterialTheme.colorScheme.surface.copy(0.1f),
-                    strokeWidth = 3.dp,
-                )
-            } else {
-                Icon(
-                    imageVector,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
+            CompositionLocalProvider(
+                LocalContentColor provides contentColor,
+                LocalTextStyle provides MaterialTheme.typography.labelLarge
+            ) {
+                if (loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = LocalContentColor.current,
+                        trackColor = MaterialTheme.colorScheme.surface.copy(0.1f),
+                        strokeWidth = 3.dp,
+                    )
+                } else {
+                    Icon(
+                        imageVector,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
 
-            Text(title)
+                Text(title)
+            }
         }
     }
 }
@@ -244,12 +266,6 @@ fun AppThemeWrapper(
                 contentScale = ContentScale.Crop,
             )
         }
-
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0x4D000000))
-        ) {}
     }
 
     content()

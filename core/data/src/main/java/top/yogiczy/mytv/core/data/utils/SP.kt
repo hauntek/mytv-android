@@ -21,7 +21,7 @@ object SP {
             return op(key, defValue)
         } catch (ex: Exception) {
             log.e("SP", ex)
-            sp.edit().remove(key).apply()
+            sp.edit().remove(key).commit()
             return defValue
         }
     }

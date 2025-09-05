@@ -2,10 +2,14 @@ package top.yogiczy.mytv.tv.ui.screensold.classicchannel.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,15 +37,14 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.DenseListItem
 import androidx.tv.material3.ListItemDefaults
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.LocalTextStyle
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
@@ -215,8 +218,22 @@ private fun ClassicChannelItem(
     val recentEpgProgramme = rememberEpgProgrammeRecent(recentEpgProgrammeProvider)
     val showEpgProgrammeProgress = showEpgProgrammeProgressProvider()
     val focusRequester = focusRequesterProvider()
+    val isSelected = isSelectedProvider()
 
     var isFocused by remember { mutableStateOf(false) }
+
+    val colorScheme = MaterialTheme.colorScheme
+    val localContentColor = LocalContentColor.current
+    val containerColor = remember(isFocused, isSelected) {
+        if (isFocused) colorScheme.onSurface
+        else if (isSelected) colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        else Color.Transparent
+    }
+    val contentColor = remember(isFocused, isSelected) {
+        if (isFocused) colorScheme.surface
+        else if (isSelected) colorScheme.onSurface
+        else localContentColor
+    }
 
     LaunchedEffect(Unit) {
         if (initialFocusedProvider()) {
@@ -239,15 +256,18 @@ private fun ClassicChannelItem(
                     LocalTextStyle provides MaterialTheme.typography.titleLarge
                 ) {
                     ChannelsChannelItemLogo(
-                        modifier = Modifier.align(Alignment.Center),
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .aspectRatio(16 / 9f),
                         channelProvider = { channel },
                     ) {
-                        Surface(
-                            modifier = modifier.fillMaxSize(),
-                            colors = SurfaceDefaults.colors(
-                                containerColor = MaterialTheme.colorScheme.onSurface.copy(0.1f),
-                            ),
-                            shape = MaterialTheme.shapes.small,
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .background(
+                                    MaterialTheme.colorScheme.onSurface.copy(0.1f),
+                                    MaterialTheme.shapes.small
+                                ),
                         ) {
                             Text(
                                 channel.no,
@@ -255,7 +275,7 @@ private fun ClassicChannelItem(
                                 color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier
                                     .align(Alignment.Center)
-                                    .padding(vertical = 10.dp),
+                                    .padding(vertical = 4.dp),
                             )
                         }
                     }
@@ -264,39 +284,46 @@ private fun ClassicChannelItem(
         }
 
         Box(modifier = modifier.clip(ListItemDefaults.shape().shape)) {
-            DenseListItem(
+            Row(
                 modifier = Modifier
                     .focusRequester(focusRequester)
                     .onFocusChanged {
                         isFocused = it.isFocused || it.hasFocus
                         if (isFocused) onChannelFocused()
                     }
+                    .focusable()
+                    .fillMaxWidth()
+                    .background(containerColor, MaterialTheme.shapes.small)
+                    .defaultMinSize(minHeight = 56.dp)
+                    .padding(horizontal = 12.dp, vertical = 4.dp)
                     .handleKeyEvents(
                         onSelect = onChannelSelected,
                         onLongSelect = onChannelFavoriteToggle
                     ),
-                colors = ListItemDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.onSurface,
-                    selectedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    selectedContentColor = MaterialTheme.colorScheme.onSurface,
-                ),
-                selected = isSelectedProvider(),
-                onClick = {},
-                headlineContent = {
-                    Text(
-                        channel.name,
-                        maxLines = 1,
-                        modifier = Modifier.ifElse(isFocused, Modifier.basicMarquee()),
-                    )
-                },
-                supportingContent = {
-                    Text(
-                        text = recentEpgProgramme?.now?.title ?: "",
-                        maxLines = 1,
-                        modifier = Modifier.ifElse(isFocused, Modifier.basicMarquee()),
-                    )
-                },
-            )
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CompositionLocalProvider(LocalContentColor provides contentColor) {
+                    Column {
+                        Text(
+                            channel.name,
+                            maxLines = 1,
+                            modifier = Modifier.ifElse(isFocused, Modifier.basicMarquee()),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+
+                        Text(
+                            text = recentEpgProgramme?.now?.title ?: "",
+                            maxLines = 1,
+                            modifier = Modifier.ifElse(isFocused, Modifier.basicMarquee()),
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                LocalContentColor.current.copy(
+                                    0.8f
+                                )
+                            ),
+                        )
+                    }
+                }
+            }
 
             if (showEpgProgrammeProgress) {
                 recentEpgProgramme?.now?.let { nnNowEpgProgramme ->

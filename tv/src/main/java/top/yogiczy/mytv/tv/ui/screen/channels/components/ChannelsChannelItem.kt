@@ -4,10 +4,10 @@ import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
@@ -37,12 +38,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
-import androidx.tv.material3.Border
-import androidx.tv.material3.ClickableSurfaceDefaults
 import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
-import androidx.tv.material3.Surface
-import androidx.tv.material3.SurfaceDefaults
 import androidx.tv.material3.Text
 import coil.compose.SubcomposeAsyncImage
 import kotlinx.coroutines.delay
@@ -70,49 +67,61 @@ fun ChannelsChannelItem(
 ) {
     var isFocused by remember { mutableStateOf(false) }
 
-    Surface(
+    val colorScheme = MaterialTheme.colorScheme
+    val localContentColor = LocalContentColor.current
+    val containerColor = remember(isFocused) {
+        if (isFocused) colorScheme.onSurface
+        else colorScheme.onSurface.copy(0.1f)
+    }
+    val contentColor = remember(isFocused) {
+        if (isFocused) colorScheme.surface
+        else localContentColor
+    }
+
+    Box(
         modifier = modifier
             .onFocusChanged { isFocused = it.isFocused || it.hasFocus }
             .width(2.4f.gridColumns())
             .handleKeyEvents(
                 onSelect = onChannelSelected,
                 onLongSelect = onChannelFavoriteToggle,
-            ),
-        colors = ClickableSurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.1f),
-        ),
-        border = ClickableSurfaceDefaults.border(
-            focusedBorder = Border(BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface)),
-        ),
-        onClick = {},
-    ) {
-        Column {
-            ChannelsChannelItemLogoWithPreview(
-                channelProvider = channelProvider,
-                isFocusedProvider = { isFocused },
             )
-
-            Box(modifier = Modifier.height(56.dp)) {
-                ChannelsChannelItemContent(
+            .focusable()
+            .clip(MaterialTheme.shapes.medium),
+    ) {
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            Column {
+                ChannelsChannelItemLogoWithPreview(
                     channelProvider = channelProvider,
-                    recentEpgProgrammeProvider = recentEpgProgrammeProvider,
                     isFocusedProvider = { isFocused },
                 )
 
-                ChannelsChannelItemProgress(
-                    recentEpgProgrammeProvider = recentEpgProgrammeProvider,
-                    modifier = Modifier.align(Alignment.BottomStart),
-                )
-            }
-        }
+                Box(
+                    modifier = Modifier
+                        .height(56.dp)
+                        .background(containerColor)
+                ) {
+                    ChannelsChannelItemContent(
+                        channelProvider = channelProvider,
+                        recentEpgProgrammeProvider = recentEpgProgrammeProvider,
+                        isFocusedProvider = { isFocused },
+                    )
 
-        ChannelsChannelItemTagList(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(8.dp),
-            channelProvider = channelProvider,
-            isFocusedProvider = { isFocused },
-        )
+                    ChannelsChannelItemProgress(
+                        recentEpgProgrammeProvider = recentEpgProgrammeProvider,
+                        modifier = Modifier.align(Alignment.BottomStart),
+                    )
+                }
+            }
+
+            ChannelsChannelItemTagList(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(8.dp),
+                channelProvider = channelProvider,
+                isFocusedProvider = { isFocused },
+            )
+        }
     }
 }
 
@@ -218,12 +227,13 @@ private fun ChannelsChannelItemNo(
     val channel = channelProvider()
     if (channel.index <= -1) return
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        colors = SurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.onSurface.copy(0.1f),
-        ),
-        shape = MaterialTheme.shapes.medium,
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(
+                MaterialTheme.colorScheme.onSurface.copy(0.1f),
+                MaterialTheme.shapes.medium
+            ),
     ) {
         Text(
             channel.no,
@@ -263,9 +273,8 @@ private fun ChannelsChannelItemContent(
             recentEpgProgramme?.now?.title ?: "",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(LocalContentColor.current.copy(0.8f)),
             modifier = Modifier
-                .alpha(0.8f)
                 .ifElse(isFocused, Modifier.basicMarquee()),
         )
     }
@@ -312,13 +321,16 @@ private fun ChannelsChannelItemTag(
 ) {
     val isFocused = isFocusedProvider()
 
-    Surface(
-        modifier = modifier.height(20.dp),
-        colors = SurfaceDefaults.colors(
-            containerColor = if (isFocused) MaterialTheme.colorScheme.onSurface
-            else MaterialTheme.colorScheme.surface.copy(0.5f),
-        ),
-        shape = MaterialTheme.shapes.extraSmall,
+    val colorScheme = MaterialTheme.colorScheme
+    val containerColor = remember(isFocused) {
+        if (isFocused) colorScheme.onSurface
+        else colorScheme.surface.copy(0.5f)
+    }
+
+    Box(
+        modifier = modifier
+            .height(20.dp)
+            .background(containerColor, MaterialTheme.shapes.extraSmall),
     ) {
         Text(
             text,

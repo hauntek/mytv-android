@@ -9,12 +9,9 @@ import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.tv.material3.Surface
 import top.yogiczy.mytv.tv.ui.App
 import top.yogiczy.mytv.tv.ui.theme.MyTvTheme
 import top.yogiczy.mytv.tv.ui.utils.Configs
@@ -39,14 +36,12 @@ class MainActivity : ComponentActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
             MyTvTheme {
-                Surface(modifier = Modifier.fillMaxSize()) {
-                    App(
-                        onBackPressed = {
-                            finish()
-                            exitProcess(0)
-                        },
-                    )
-                }
+                App(
+                    onBackPressed = {
+                        finish()
+                        exitProcess(0)
+                    },
+                )
             }
         }
 

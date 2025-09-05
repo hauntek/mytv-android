@@ -54,7 +54,7 @@ data class EpgList(
             return EpgList(channelList.map(Epg.Companion::example))
         }
 
-        private val semaphore = Semaphore(5)
+        private val semaphore = Semaphore(1)
         suspend fun <T> action(action: () -> T): T {
             return semaphore.withPermit {
                 withContext(Dispatchers.Default) { action() }

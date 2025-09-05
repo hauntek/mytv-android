@@ -46,7 +46,6 @@ fun ClassicEpgItemList(
     val programDayGroup = epg.programmeList.groupBy { dateFormat.format(it.startAt) }
     var currentDay by remember { mutableStateOf(dateFormat.format(System.currentTimeMillis())) }
 
-
     Row(
         modifier = modifier
             .fillMaxHeight()

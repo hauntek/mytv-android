@@ -88,9 +88,11 @@ class IptvRepository(private val source: IptvSource) :
                 refresh { transform(it) }
             }
 
-            return Globals.json.decodeFromString<ChannelGroupList>(json).also { groupList ->
-                log.i("加载直播源（${source.name}）：${groupList.size}个分组，${groupList.sumOf { it.channelList.size }}个频道")
+            val (groupList, duration) = measureTimedValue {
+                Globals.json.decodeFromString<ChannelGroupList>(json)
             }
+            log.i("加载直播源（${source.name}）：${groupList.size}个分组，${groupList.sumOf { it.channelList.size }}个频道: $duration")
+            return groupList
         } catch (ex: Exception) {
             log.e("加载直播源（${source.name}）失败", ex)
             throw ex

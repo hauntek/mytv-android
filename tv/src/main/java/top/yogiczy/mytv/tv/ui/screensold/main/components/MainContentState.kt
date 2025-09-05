@@ -284,7 +284,7 @@ class MainContentState(
 
         _currentPlaybackEpgProgramme = playbackEpgProgramme
 
-        var url = currentChannelLine.url
+        var url = currentChannelLine.playableUrl
         if (_currentPlaybackEpgProgramme != null) {
             val timeFormat = SimpleDateFormat("yyyyMMddHHmmss", Locale.getDefault())
             val query = listOf(

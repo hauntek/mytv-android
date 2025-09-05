@@ -1,7 +1,9 @@
 package top.yogiczy.mytv.tv.ui.screen.live.channels.components
 
 import android.net.TrafficStats
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -29,6 +31,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.tv.material3.LocalContentColor
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Surface
 import androidx.tv.material3.SurfaceDefaults
@@ -124,12 +127,9 @@ private fun LiveChannelsChannelInfoNo(
 ) {
     val channel = channelProvider()
 
-    Surface(
-        modifier = modifier.fillMaxSize(),
-        colors = SurfaceDefaults.colors(
-            containerColor = MaterialTheme.colorScheme.inverseOnSurface.copy(0.5f),
-        ),
-        shape = MaterialTheme.shapes.medium,
+    Box(
+        modifier = modifier.fillMaxSize()
+            .background(MaterialTheme.colorScheme.inverseOnSurface.copy(0.5f), MaterialTheme.shapes.medium),
     ) {
         Text(
             channel.no,
@@ -327,15 +327,13 @@ private fun LiveChannelsChannelInfoEpgProgramme(
             ) {
                 Text(
                     "00:00 — 23:59",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.alpha(0.8f),
+                    style = MaterialTheme.typography.labelLarge.copy(LocalContentColor.current.copy(0.8f)),
                     maxLines = 1,
                 )
 
                 Text(
                     "精彩节目",
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.alpha(0.8f),
+                    style = MaterialTheme.typography.bodyLarge.copy(LocalContentColor.current.copy(0.8f)),
                     maxLines = 1,
                 )
             }
@@ -351,8 +349,7 @@ private fun LiveChannelsChannelInfoEpgProgramme(
     ) {
         Text(
             "${timeFormat.format(programme.startAt)} — ${timeFormat.format(programme.endAt)}",
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.alpha(0.8f),
+            style = MaterialTheme.typography.labelLarge.copy(LocalContentColor.current.copy(0.8f)),
             maxLines = 1,
         )
 
@@ -372,16 +369,14 @@ private fun LiveChannelsChannelInfoEpgProgramme(
 
                 Text(
                     "${programme.remainingMinutes()}分钟",
-                    style = MaterialTheme.typography.labelLarge,
-                    modifier = Modifier.alpha(0.8f),
+                    style = MaterialTheme.typography.labelLarge.copy(LocalContentColor.current.copy(0.8f)),
                 )
             }
         }
 
         Text(
             programme.title,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.alpha(0.8f),
+            style = MaterialTheme.typography.bodyLarge.copy(LocalContentColor.current.copy(0.8f)),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
