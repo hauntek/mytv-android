@@ -56,7 +56,7 @@ object Constants {
     /**
      * 节目单刷新时间阈值（小时）
      */
-    const val EPG_REFRESH_TIME_THRESHOLD = 2 // 不到2点不刷新
+    const val EPG_REFRESH_TIME_THRESHOLD = 0 // 不到0点不刷新
 
     /**
      * 频道图标提供
