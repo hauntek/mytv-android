@@ -12,12 +12,12 @@ object Constants {
     /**
      * 应用 标题
      */
-    const val APP_TITLE = "天光云影"
+    const val APP_TITLE = "我的电视"
 
     /**
      * 应用 代码仓库
      */
-    const val APP_REPO = "https://github.com/yaoxieyoulei/mytv-android"
+    const val APP_REPO = "https://github.com/hauntek/mytv-android"
 
     /**
      * 交流群 telegram
@@ -31,7 +31,7 @@ object Constants {
         listOf(
             IptvSource(
                 name = "无效占位订阅源",
-                url = "http://1.2.3.4/live.m3u",
+                url = "http://192.168.11.2:5000/GCableIPTV.m3u",
             ),
         )
     )
@@ -47,8 +47,8 @@ object Constants {
     val EPG_SOURCE_LIST = EpgSourceList(
         listOf(
             EpgSource(
-                name = "默认节目单 fanmingming",
-                url = "https://live.fanmingming.com/e.xml",
+                name = "默认节目单 GCableIPTV",
+                url = "http://192.168.11.2:5000/epg.xml.gz",
             ),
         )
     )
@@ -68,7 +68,7 @@ object Constants {
      * {name|uppercase} 转成大写
      *
      */
-    const val CHANNEL_LOGO_PROVIDER = "https://live.fanmingming.com/tv/{name|uppercase}.png"
+    const val CHANNEL_LOGO_PROVIDER = "http://192.168.11.2:5000/logos/{name|lowercase}.png"
 
     /**
      * GitHub加速代理地址
@@ -79,9 +79,9 @@ object Constants {
      * Git最新版本信息
      */
     val GIT_RELEASE_LATEST_URL = mapOf(
-        "stable" to "${GITHUB_PROXY}https://raw.githubusercontent.com/yaoxieyoulei/mytv-android-update/main/tv-stable.json",
-        "beta" to "${GITHUB_PROXY}https://raw.githubusercontent.com/yaoxieyoulei/mytv-android-update/main/tv-beta.json",
-        "dev" to "${GITHUB_PROXY}https://raw.githubusercontent.com/yaoxieyoulei/mytv-android-update/main/tv-dev.json",
+        "stable" to "${GITHUB_PROXY}https://raw.githubusercontent.com/hauntek/mytv-android-update/main/tv-stable.json",
+        "beta" to "${GITHUB_PROXY}https://raw.githubusercontent.com/hauntek/mytv-android-update/main/tv-beta.json",
+        "dev" to "${GITHUB_PROXY}https://raw.githubusercontent.com/hauntek/mytv-android-update/main/tv-dev.json",
     )
 
     /**
