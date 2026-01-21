@@ -411,7 +411,7 @@ object Configs {
 
     /** 节目单跟随直播源 */
     var epgSourceFollowIptv: Boolean
-        get() = SP.getBoolean(KEY.EPG_SOURCE_FOLLOW_IPTV.name, false)
+        get() = SP.getBoolean(KEY.EPG_SOURCE_FOLLOW_IPTV.name, true)
         set(value) = SP.putBoolean(KEY.EPG_SOURCE_FOLLOW_IPTV.name, value)
 
     /** 节目预约列表 */
