@@ -30,7 +30,7 @@ object Constants {
     val IPTV_SOURCE_LIST = IptvSourceList(
         listOf(
             IptvSource(
-                name = "无效占位订阅源",
+                name = "GCableIPTV",
                 url = "http://192.168.11.2:5000/GCableIPTV.m3u",
             ),
         )
