@@ -36,7 +36,16 @@ jobs:
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >>$GITHUB_OUTPUT
 
-      - name: 重命名应用
+      - name: 重命名应用 MOBILE
+        run: |
+          for file in mobile/build/outputs/apk/release/app-*.apk; do
+            if [[ $file =~ app-(.?*)release.apk ]]; then
+              new_file_name="mobile/build/outputs/apk/release/mytv-android-${BASH_REMATCH[1]}${{ steps.version.outputs.version }}.apk"
+              mv "$file" "$new_file_name"
+            fi
+          done
+
+      - name: 重命名应用 TV
         run: |
           for file in tv/build/outputs/apk/release/app-*.apk; do
             if [[ $file =~ app-(.?*)release.apk ]]; then
@@ -48,6 +57,7 @@ jobs:
       - name: Prepare artifacts
         run: |
           mkdir artifacts
+          cp mobile/build/outputs/apk/release/*.apk artifacts/
           cp tv/build/outputs/apk/release/*.apk artifacts/
 
       - name: Upload Release
