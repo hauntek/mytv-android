@@ -31,7 +31,7 @@ object Constants {
         listOf(
             IptvSource(
                 name = "GCableIPTV",
-                url = "http://192.168.11.2:5000/GCableIPTV.m3u",
+                url = "http://192.168.9.2:5000/GCableIPTV.m3u",
             ),
         )
     )
@@ -48,7 +48,7 @@ object Constants {
         listOf(
             EpgSource(
                 name = "默认节目单 GCableIPTV",
-                url = "http://192.168.11.2:5000/epg.xml.gz",
+                url = "http://192.168.9.2:5000/epg.xml.gz",
             ),
         )
     )
@@ -68,7 +68,7 @@ object Constants {
      * {name|uppercase} 转成大写
      *
      */
-    const val CHANNEL_LOGO_PROVIDER = "http://192.168.11.2:5000/logos/{name|lowercase}.png"
+    const val CHANNEL_LOGO_PROVIDER = "http://192.168.9.2:5000/logos/{name|lowercase}.png"
 
     /**
      * GitHub加速代理地址
